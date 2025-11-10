@@ -12,13 +12,13 @@ Example:
 
     .. code-block:: bash
 
-        python run_vcf.py sample.vcf
+        python run_vcf_argparse.py sample.vcf
 
     Запуск с фильтрацией по региону:
 
     .. code-block:: bash
 
-        python run_vcf.py sample.vcf chr1 10000 20000
+        python run_vcf_argparse.py sample.vcf chr1 10000 20000
 
 """
 

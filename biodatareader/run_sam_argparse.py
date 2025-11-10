@@ -6,13 +6,13 @@ Example:
 
     .. code-block:: bash
 
-        python run_sam.py sample.sam
+        python run_sam_argparse.py sample.sam
 
     Запуск с фильтрацией по региону:
 
     .. code-block:: bash
 
-        python run_sam.py sample.sam chr1 10000 20000
+        python run_sam_argparse.py sample.sam chr1 10000 20000
 """
 
 import sys
