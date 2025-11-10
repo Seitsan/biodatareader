@@ -20,10 +20,12 @@ cd BioDataReader
 
 ## Пример использования
 ```bash
+
 python biodatareader/run_<формат>_<вид_парсера>.py <подкоманда> <входной_файл> [дополнительные_параметры]
 ```
 ### Класс FastaReader
 ```bash
+
 python biodatareader/run_fasta_<argparse/click>.py GCA_000006945.2_ASM694v2_genomic.fna
 ```
 **Пример вывода**
@@ -34,6 +36,7 @@ python biodatareader/run_fasta_<argparse/click>.py GCA_000006945.2_ASM694v2_geno
 ```
 ### Класс FastqReader
 ```bash
+
 python biodatareader/run_fastq.py SRR3280893_1.fastq
 ```
 **Пример вывода**
@@ -44,7 +47,8 @@ python biodatareader/run_fastq.py SRR3280893_1.fastq
 
 ### Класс SamReader
 ```bash
-python biodatareader/run_sam.py Col0_C1.100k.sam
+
+python biodatareader/run_sam_<argparse/click>.py Col0_C1.100k.sam
 ```
 **Пример вывода**
 ```text
@@ -66,7 +70,8 @@ chrom  count
 ```
 ### Класс VcfReader
 ```bash
-python biodatareader/run_vcf.py HG00098.vcf
+
+python biodatareader/run_vcf_<argparse/click>.py HG00098.vcf
 ```
 **Пример вывода**
 ```text
