@@ -3,16 +3,12 @@ import argparse
 import json
 import csv
 from contextlib import redirect_stdout
-from itertools import count
 import pathlib
 from fasta_reader import FastaReader
 
 
 def setup_parser():
     parser = argparse.ArgumentParser(description="Инструмент для для анализа FASTA-файлов")
-
-    parser.add_argument("-v", "--verbose", action="store_true", help="Подробный вывод")
-
     subparser = parser.add_subparsers(dest="command", help="Доступные команды")
 
     stats_parser = subparser.add_parser("stats", help="Общая статистика")
@@ -70,12 +66,12 @@ def output_csv(data, command_name):
     writer = csv.writer(sys.stdout)
 
     if command_name == "stats":
-        writer.writerow(["Метрика", "Значение"])
+        writer.writerow(["metrics", "value"])
         writer.writerow(["Количество последовательностей", data['count']])
         writer.writerow(["Средняя длина", f"{data['mean_length']:.2f}"])
 
     elif command_name == "sequences":
-        writer.writerow(["ID", "Длина"])
+        writer.writerow(["ID", "length"])
         for seq in data:
             writer.writerow([seq['id'], seq['length']])
 
