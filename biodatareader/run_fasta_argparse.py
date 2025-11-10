@@ -30,7 +30,7 @@ def setup_parser():
 def output_results(data, output_format, command_name, output_file=None):
 
     if output_file:
-        with open(output_file, 'w') as f:
+        with open(output_file, 'w', encoding='utf-8') as f:
             with redirect_stdout(f):
                 _output_data(data, output_format, command_name)
         print(f"Результаты сохранены в {output_file}")
@@ -50,7 +50,7 @@ def _output_data(data, output_format, command_name):
 def output_text(data, command_name):
     if command_name == "stats":
         print(f"Статистика FASTA-файла:")
-        print(f"    Количество последовательностей: {len(data)}")
+        print(f"    Количество последовательностей: {data['count']}")
         print(f"    Средняя длина: {data['mean_length']:.2f}")
 
     elif command_name == "sequences":
@@ -82,6 +82,10 @@ def output_csv(data, command_name):
 
 def handle_stats(args) -> None:
 
+    if not args.filename.exists():
+        print(f"Ошибка: файл {args.filename} не существует", file=sys.stderr)
+        return
+
     try:
         with FastaReader(args.filename) as reader:
 
@@ -104,6 +108,10 @@ def handle_stats(args) -> None:
 
 
 def handle_sequences(args):
+    if not args.filename.exists():
+        print(f"Ошибка: файл {args.filename} не существует", file=sys.stderr)
+        return
+
     sequences_data = []
     with FastaReader(args.filename) as reader:
         for record in reader.read():
