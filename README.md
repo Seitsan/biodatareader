@@ -14,22 +14,23 @@
 
 ```bash
 # Клонирование репозитория
-git clone https://github.com/bioinf-rnrmu-stotoshka/bioformats-bioboba.git
-cd bioformats-bioboba
+git clone https://github.com/Seitsan/biodatareader.git
+cd BioDataReader
 ```
 
 ## Пример использования
 ```bash
-python biodatareader/run_<формат>.py <входной_файл> [дополнительные_параметры]
+python biodatareader/run_<формат>_<вид_парсера>.py <подкоманда> <входной_файл> [дополнительные_параметры]
 ```
 ### Класс FastaReader
 ```bash
-python biodatareader/run_fasta.py GCA_000006945.2_ASM694v2_genomic.fna
+python biodatareader/run_fasta_<argparse/click>.py GCA_000006945.2_ASM694v2_genomic.fna
 ```
 **Пример вывода**
 ```text
-Количество последовательностей: 2
-Средняя длина последовательности: 2475691.50
+Статистика FASTA-файла:
+    Количество последовательностей: 2
+    Средняя длина: 2475691.50
 ```
 ### Класс FastqReader
 ```bash
