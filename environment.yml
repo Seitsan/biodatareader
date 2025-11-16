@@ -1,0 +1,9 @@
+name: biodata_venv
+channels:
+  - defaults
+dependencies:
+  - python=3.12
+  - click
+  - matplotlib
+  - pandas
+
