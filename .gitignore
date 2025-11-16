@@ -31,3 +31,5 @@ docs/_autosummary/
 # OS
 .DS_Store
 Thumbs.db
+
+testfiles/
