@@ -16,6 +16,10 @@
 # Клонирование репозитория
 git clone https://github.com/Seitsan/biodatareader.git
 cd BioDataReader
+
+# Создание окружения
+conda env create -f environment.yml
+conda activate biodata_venv
 ```
 
 ## Пример использования
