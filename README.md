@@ -24,9 +24,33 @@ cd BioDataReader
 python biodatareader/run_<формат>_<вид_парсера>.py <подкоманда> <входной_файл> [дополнительные_параметры]
 ```
 ### Класс FastaReader
+```text
+usage: run_fasta_<argparse/click>.py [-h] {stats,sequences} ...
+
+Инструмент для для анализа FASTA-файлов
+
+positional arguments:
+  {stats,sequences}  Доступные команды
+    stats            Общая статистика
+    sequences        Работа с отдельными последовательностями
+
+options:
+  -h, --help         show this help message and exit
+```
+### *Подкоманда stats*
+```text
+Usage: run_fasta_<arparse/click>.py stats [OPTIONS] FILENAME
+
+  Общая статистика
+
+Options:
+  -f, --format [text|json|csv]  Формат вывода
+  --help                        Show this message and exit.
+```
+**Пример работы**
 ```bash
 
-python biodatareader/run_fasta_<argparse/click>.py GCA_000006945.2_ASM694v2_genomic.fna
+python biodatareader/run_fasta_<argparse/click>.py stats testfiles/example.fna
 ```
 **Пример вывода**
 ```text
@@ -34,17 +58,109 @@ python biodatareader/run_fasta_<argparse/click>.py GCA_000006945.2_ASM694v2_geno
     Количество последовательностей: 2
     Средняя длина: 2475691.50
 ```
-### Класс FastqReader
-```bash
+### *Подкоманда sequences*
+```text
+usage: run_fasta_argparse.py sequences [-h] [--output OUTPUT] [--format {text,json,csv}] filename
 
-python biodatareader/run_fastq.py SRR3280893_1.fastq
+positional arguments:
+  filename                  Путь к FASTA-файлу
+
+options:
+  -h, --help                show this help message and exit
+  --output OUTPUT           Путь к файлу для сохранения результатов
+  --format {text,json,csv}  Формат вывода
+```
+**Пример работы**
+```bash
+python biodatareader\run_fasta_<argparse/click>.py sequences testfiles\example.fna
 ```
 **Пример вывода**
+```text
+Найдено последовательностей: 2
+    ID: AE006468.2 Salmonella enterica subsp. enterica serovar Typhimurium str. LT2, complete genome
+    Длина: 4857450
+  ----------------------------------------
+    ID: AE006471.2 Salmonella enterica subsp. enterica serovar Typhimurium str. LT2 plasmid pSLT, complete sequence
+    Длина: 93933
+  ----------------------------------------
+```
+### Класс FastqReader
+```text
+Usage: run_fastq_click.py [OPTIONS] COMMAND [ARGS]...
 
+  FASTQ Analyzer - инструмент для анализа FASTQ-файлов.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  plots    Построение графиков по FASTQ-файлу.
+  quality  Детальный анализ качества последовательностей.
+  stats    Вывод общей статистики по FASTQ-файлу.
+```
+### *Подкоманда plots*
+```text
+Usage: run_fastq_<argparse/click>.py plots [OPTIONS] FILE
+
+  Построение графиков по FASTQ-файлу.
+
+  FILE - путь к FASTQ-файлу (поддерживается сжатие .gz)
+
+  Строит три графика:
+   - Распределение длин последовательностей
+   - Качество чтений по позициям
+   - Содержание нуклеотидов по позициям
+
+Options:
+  --help  Show this message and exit.
+```
+**Пример работы**
+```bash
+python biodatareader\run_fastq_<argparse/click>.py plots testfiles\example.fastq.gz
+```
+**Пример вывода**
+```text
+Построение графиков для файла: testfiles\example.fastq.gz
+--------------------------------------------------
+Обработано записей: 1,298,716
+Строим графики...
+Total sequences: 1298716
+Mean sequence length: 98.8 bp
+Analysis completed.
+ Графики успешно построены!
+```
 ![1q](https://github.com/user-attachments/assets/87ba1d3a-53b9-4bcb-a218-72cba5191b46)
 ![2q](https://github.com/user-attachments/assets/67da3057-7914-4215-83c3-caccc59ac130)
 ![3q](https://github.com/user-attachments/assets/2c13dbfa-751e-471e-99cf-673d9840e5e7)
 
+### *Подкоманда quality*
+```text
+usage: run_fastq.py quality [-h] file
+
+Подробный анализ качества чтений с Q20/Q30 статистикой
+
+positional arguments:
+  file        путь к FASTQ-файлу (поддерживается сжатие .gz)
+
+options:
+  -h, --help  show this help message and exit
+```
+**Пример работы**
+```bash
+python biodatareader\run_fastq_<argparse/click>.py quality testfiles\example.fastq.gz
+```
+**Пример вывода**
+```text
+Анализ качества для файла: testfiles\example.fastq.gz
+==================================================
+Общее количество последовательностей:     1,298,716
+Общее количество нуклеотидов:            128,292,221
+Среднее качество (Phred):                      36.1
+Минимальное качество:                             2
+Максимальное качество:                           40
+Процент оснований с Q≥20:                     98.1%
+Процент оснований с Q≥30:                     93.8%
+```
 ### Класс SamReader
 ```bash
 
