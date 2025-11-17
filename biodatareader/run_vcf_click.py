@@ -1,104 +1,67 @@
 """
-Демонстрационная программа для анализа VCF-файлов (версия с Click).
-
-1. Получение заголовка и информации по отдельным группам заголовков (##INFO, ##FILTER и т.д.)
-2. Получение количества вариантов.
-3. Получение статистики “количество вариантов — регион” (регион = хромосома) с использованием pandas.
-4. Получение вариантов в заданном геномном отрезке (аналог bedtools intersect).
-
+Демонстрационная программа для анализа VCF-файлов с использованием 
+под-команд click.
 
 Example:
-    Запуск без региона:
+    # Получить заголовки
+    python run_vcf.py sample.vcf header
 
-    .. code-block:: bash
+    # Посчитать варианты
+    python run_vcf.py sample.vcf count
 
-        python run_vcf.py sample.vcf
+    # Получить статистику
+    python run_vcf.py sample.vcf stats
 
-    Запуск с фильтрацией по региону:
-
-    .. code-block:: bash
-
-        python run_vcf.py sample.vcf chr1 10000 20000
-
+    # Запустить фильтрацию по региону
+    python run_vcf.py sample.vcf filter chr1 10000 20000
 """
 
 import sys
 import click
 from pathlib import Path
-from vcf_reader import VcfReader  # Предполагается, что этот модуль у вас есть
+from vcf_reader import VcfReader   
 
-
-@click.command(context_settings=dict(help_option_names=['-h', '--help']))
+@click.group(context_settings=dict(help_option_names=['-h', '--help']))
 @click.argument(
     "vcf_file",
     type=click.Path(
-        exists=True,       # Файл должен существовать
-        file_okay=True,    # Это должен быть файл
-        dir_okay=False,    # Это не должна быть директория
-        readable=True,     # Файл должен быть читаемым
-        path_type=Path     # Преобразовать в объект Path
+        exists=True,        
+        file_okay=True,     
+        dir_okay=False,     
+        readable=True,      
+        path_type=Path     
     ),
 )
-@click.argument("chrom", type=str, required=False, default=None)
-@click.argument("start", type=int, required=False, default=None)
-@click.argument("end", type=int, required=False, default=None)
-def main(vcf_file: Path, chrom: str | None, start: int | None, end: int | None) -> None:
+@click.pass_context  
+def cli(ctx, vcf_file: Path):
     """
-    Основная функция CLI-утилиты для анализа VCF-файлов.
+    Анализ VCF-файлов: заголовки, статистика, фильтрация.
 
-    - Выводит мета-заголовки VCF-файла (строки, начинающиеся с '##').
-    - Группирует и отображает информацию по ключевым секциям заголовка: ##INFO, ##FILTER, ##FORMAT, ##contig.
-    - Подсчитывает общее количество вариантов в файле.
-    - Формирует и выводит статистику по хромосомам (регионам) с использованием pandas.
-    - (Опционально) Фильтрует и отображает варианты в заданном геномном регионе.
-
-    Аргументы:
-
-    - VCF_FILE (str): Обязательный путь к VCF-файлу.
-    - CHROM (str, optional): Название хромосомы для фильтрации (например, 'chr1').
-    - START (int, optional): Начало региона (1-based, включительно).
-    - END (int, optional): Конец региона (включительно).
-
-    Программа завершается с кодом 1 в следующих случаях:
-
-    - Указанный файл не существует (проверяется click).
-    - Задана хромосома, но не указаны обе координаты (start и end).
-    - Нарушены ограничения на координаты (start < 1 или start > end).
-    - Произошла ошибка при чтении или обработке VCF-файла.
-
-    Note:
-        Для корректной работы требуется, чтобы класс VcfReader реализовывал
-        методы: get_header, get_header_group, count_variants,
-        stats_by_region, filter_by_region.
-
-    Raises:
-        SystemExit: При ошибках валидации входных данных или обработки файла.
+    VCF_FILE - Путь к входному VCF-файлу.
     """
+    ctx.obj = {"VCF_FILE": vcf_file}
 
-    # Проверка существования файла 'vcf_file' уже выполнена click
 
-    # Проверка корректности региона
-    if chrom is not None:
-        if start is None or end is None:
-            click.echo("Ошибка: если указана хромосома, должны быть заданы и START, и END.", err=True)
-            sys.exit(1)
-        if start > end or start < 1:
-            click.echo("Ошибка: START должен быть ≥ 1 и ≤ END.", err=True)
-            sys.exit(1)
+@cli.command()
+@click.pass_context   
+def header(ctx):
+    """1. Показать заголовки (meta и группы INFO/FILTER/...)."""
+    
+    file_path = ctx.obj["VCF_FILE"]  
+    click.echo(f"--- Анализ заголовков для: {file_path.name} ---")
 
     try:
-        with VcfReader(vcf_file) as reader:
+        with VcfReader(file_path) as reader:
             click.echo("=" * 70)
-            click.echo("1. ЗАГОЛОВКИ VCF-ФАЙЛА")
+            click.echo("1. ОБЩИЕ ЗАГОЛОВКИ VCF-ФАЙЛА")
             click.echo("=" * 70)
-            header = reader.get_header()
-            if header:
-                click.echo(f"Найдено {len(header)} мета-заголовков (##...)")
-                # Показываем первые 5, чтобы не засорять вывод
-                for line in header[:5]:
+            header_lines = reader.get_header()
+            if header_lines:
+                click.echo(f"Найдено {len(header_lines)} мета-заголовков (##...)")
+                for line in header_lines[:5]:
                     click.echo(f"  {line}")
-                if len(header) > 5:
-                    click.echo(f"  ... и ещё {len(header) - 5} строк")
+                if len(header_lines) > 5:
+                    click.echo(f"  ... и ещё {len(header_lines) - 5} строк")
             else:
                 click.echo("Мета-заголовки не найдены.")
 
@@ -117,13 +80,45 @@ def main(vcf_file: Path, chrom: str | None, start: int | None, end: int | None) 
                 else:
                     click.echo(f"\n##{group} — не найдены")
 
-            click.echo("\n" + "=" * 70)
+    except Exception as e:
+        click.echo(f"Ошибка при обработке VCF-файла: {e}", err=True)
+        sys.exit(1)
+    
+    click.echo("\n--- Анализ заголовков завершён ---")
+
+
+@cli.command()
+@click.pass_context
+def count(ctx):
+    """2. Посчитать общее количество вариантов."""
+    
+    file_path = ctx.obj["VCF_FILE"]
+    click.echo(f"--- Подсчет вариантов в: {file_path.name} ---")
+    
+    try:
+        with VcfReader(file_path) as reader:
+            click.echo("=" * 70)
             click.echo("3. КОЛИЧЕСТВО ВАРИАНТОВ")
             click.echo("=" * 70)
             total = reader.count_variants()
             click.echo(f"Общее количество вариантов: {total:,}")
 
-            click.echo("\n" + "=" * 70)
+    except Exception as e:
+        click.echo(f"Ошибка при обработке VCF-файла: {e}", err=True)
+        sys.exit(1)
+
+
+@cli.command()
+@click.pass_context
+def stats(ctx):
+    """3. Показать статистику по регионам (хромосомам)."""
+    
+    file_path = ctx.obj["VCF_FILE"]
+    click.echo(f"--- Статистика по регионам в: {file_path.name} ---")
+
+    try:
+        with VcfReader(file_path) as reader:
+            click.echo("=" * 70)
             click.echo("4. СТАТИСТИКА ПО РЕГИОНАМ (ХРОМОСОМАМ)")
             click.echo("=" * 70)
             stats_df = reader.stats_by_region()
@@ -133,25 +128,47 @@ def main(vcf_file: Path, chrom: str | None, start: int | None, end: int | None) 
                 click.echo(stats_df.to_string(index=False))
                 click.echo(f"\nВсего регионов (хромосом) с вариантами: {len(stats_df)}")
 
-            # === Фильтрация по региону ===
-            if chrom is not None:
-                click.echo(f"\n" + "=" * 70)
-                click.echo(f"5. ВАРИАНТЫ В РЕГИОНЕ: {chrom}:{start}-{end}")
-                click.echo("=" * 70)
-                variants_in_region = list(reader.filter_by_region(chrom, start, end))
-                click.echo(f"Найдено вариантов: {len(variants_in_region)}")
-                for i, var in enumerate(variants_in_region[:5], 1):  # Показываем первые 5
-                    # Предполагаем, что 'var' имеет атрибуты chrom, pos, ref, alt
-                    click.echo(f"  {i}. {var.chrom}:{var.pos} {var.ref}>{var.alt}")
-                if len(variants_in_region) > 5:
-                    click.echo(f"  ... и ещё {len(variants_in_region) - 5}")
+    except Exception as e:
+        click.echo(f"Ошибка при обработке VCF-файла: {e}", err=True)
+        sys.exit(1)
+
+
+@cli.command()
+@click.argument("chrom", type=str)
+@click.argument("start", type=int)
+@click.argument("end", type=int)
+@click.pass_context
+def filter(ctx, chrom: str, start: int, end: int):
+    """4. Фильтровать варианты в заданном регионе."""
+    
+    file_path = ctx.obj["VCF_FILE"]
+    
+     
+    if start > end or start < 1:
+        click.echo("Ошибка: START должен быть ≥ 1 и ≤ END.", err=True)
+        sys.exit(1)
+
+    click.echo(f"--- Фильтрация региона {chrom}:{start}-{end} в: {file_path.name} ---")
+
+    try:
+        with VcfReader(file_path) as reader:
+            click.echo("=" * 70)
+            click.echo(f"5. ВАРИАНТЫ В РЕГИОНЕ: {chrom}:{start}-{end}")
+            click.echo("=" * 70)
+            
+            variants_in_region = list(reader.filter_by_region(chrom, start, end))
+            
+            click.echo(f"Найдено вариантов: {len(variants_in_region)}")
+            for i, var in enumerate(variants_in_region[:5], 1):  
+                 
+                click.echo(f"  {i}. {var.chrom}:{var.pos} {var.ref}>{var.alt}")
+            if len(variants_in_region) > 5:
+                click.echo(f"  ... и ещё {len(variants_in_region) - 5}")
 
     except Exception as e:
         click.echo(f"Ошибка при обработке VCF-файла: {e}", err=True)
         sys.exit(1)
 
-    click.echo("\nАнализ завершён.")
-
 
 if __name__ == "__main__":
-    main()
+    cli()
