@@ -4,16 +4,16 @@
 
 Example:
     # Получить заголовки
-    python run_vcf.py sample.vcf header
+    python run_vcf_click.py sample.vcf header
 
     # Посчитать варианты
-    python run_vcf.py sample.vcf count
+    python run_vcf_click.py sample.vcf count
 
     # Получить статистику
-    python run_vcf.py sample.vcf stats
+    python run_vcf_click.py sample.vcf stats
 
     # Запустить фильтрацию по региону
-    python run_vcf.py sample.vcf filter chr1 10000 20000
+    python run_vcf_click.py sample.vcf filter chr1 10000 20000
 """
 
 import sys

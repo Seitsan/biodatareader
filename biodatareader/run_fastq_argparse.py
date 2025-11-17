@@ -178,7 +178,7 @@ def main():
     """
     parser = argparse.ArgumentParser(
         description="FASTQ Analyzer - комплексный инструмент для анализа FASTQ-файлов",
-        prog="run_fastq.py"
+        prog="run_fastq_argparse.py"
     )
     
     subparsers = parser.add_subparsers(
