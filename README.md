@@ -27,7 +27,7 @@ conda activate biodata_venv
 
 python biodatareader/run_<формат>_<вид_парсера>.py <подкоманда> <входной_файл> [дополнительные_параметры]
 ```
-### Класс FastaReader
+## Класс FastaReader
 ```text
 usage: run_fasta_<argparse/click>.py [-h] {stats,sequences} ...
 
@@ -88,7 +88,7 @@ python biodatareader\run_fasta_<argparse/click>.py sequences testfiles\example.f
     Длина: 93933
   ----------------------------------------
 ```
-### Класс FastqReader
+## Класс FastqReader
 ```text
 Usage: run_fastq_click.py [OPTIONS] COMMAND [ARGS]...
 
@@ -165,10 +165,30 @@ python biodatareader\run_fastq_<argparse/click>.py quality testfiles\example.fas
 Процент оснований с Q≥20:                     98.1%
 Процент оснований с Q≥30:                     93.8%
 ```
-### Класс SamReader
-```bash
+## Класс SamReader
+```text
+usage: run_sam_<argparse/click>.py [-h] sam_file {header,count,stats,filter} ...
 
-python biodatareader/run_sam_<argparse/click>.py Col0_C1.100k.sam
+Анализ SAM-файла: заголовки, статистика, фильтрация по региону.
+
+positional arguments:
+  sam_file              Путь к SAM-файлу
+
+options:
+  -h, --help            show this help message and exit
+
+Команды:
+  {header,count,stats,filter}
+                        Действие для выполнения
+    header              Показать заголовки SAM-файла
+    count               Посчитать общее число выравниваний
+    stats               Собрать статистику по хромосомам
+    filter              Фильтровать выравнивания по геномному региону
+```
+### *Подкоманда header*
+**Пример работы**
+```bash
+python biodatareader\run_sam_<argparse/click>.py testfiles\example.sam header
 ```
 **Пример вывода**
 ```text
@@ -181,17 +201,82 @@ python biodatareader/run_sam_<argparse/click>.py Col0_C1.100k.sam
   SN:5  LN:26975502
   SN:C  LN:154478
   SN:M  LN:366924
-
+```
+### *Подкоманда count*
+**Пример работы**
+```bash
+python biodatareader\run_sam_<argparse/click>.py testfiles\example.sam count
+```
+**Пример вывода**
+```text
 === Общее количество выравниваний: 34,298
-
+```
+### *Подкоманда stats*
+**Пример работы**
+```bash
+python biodatareader\run_sam_<argparse/click>.py testfiles\example.sam stats
+```
+**Пример вывода**
+```text
 === Статистика по хромосомам ===
 chrom  count
     1  34298
 ```
-### Класс VcfReader
-```bash
+### *Подкоманда filter*
+```text
+usage: run_sam_argparse.py sam_file filter [-h] chrom start end
 
-python biodatareader/run_vcf_<argparse/click>.py HG00098.vcf
+positional arguments:
+  chrom       Хромосома для фильтрации (например: '1', 'chr1')
+  start       Начало региона (1-based)
+  end         Конец региона
+
+options:
+  -h, --help  show this help message and exit
+```
+**Пример работы**
+```bash
+python biodatareader\run_sam_<argparse/click>.py testfiles\example.sam filter 1 1 4000
+```
+**Пример вывода**
+```text
+=== Выравнивания в регионе 1:1-4000 ===
+HWI-ST486:305:C0RH5ACXX:1:2104:8917:83075       1       1150    8079    43S13M6872N45M
+HWI-ST486:305:C0RH5ACXX:1:2301:3695:158333      1       3654    3749    96M
+HWI-ST486:305:C0RH5ACXX:1:2301:3695:158333      1       3658    3758    101M
+HWI-ST486:305:C0RH5ACXX:1:2105:16421:178374     1       3666    3763    98M
+HWI-ST486:305:C0RH5ACXX:1:2304:3907:159711      1       3675    3765    91M
+HWI-ST486:305:C0RH5ACXX:1:2202:4410:41689       1       3710    3808    99M
+HWI-ST486:305:C0RH5ACXX:1:2304:3907:159711      1       3737    3837    101M
+HWI-ST486:305:C0RH5ACXX:1:2105:16421:178374     1       3743    3843    101M
+HWI-ST486:305:C0RH5ACXX:1:2202:4410:41689       1       3804    3903    100M1S
+HWI-ST486:305:C0RH5ACXX:1:2102:19267:197220     1       3822    4004    92M82N9M
+HWI-ST486:305:C0RH5ACXX:1:2102:19267:197220     1       3845    4025    69M82N30M
+```
+## Класс VcfReader
+```text
+usage: run_vcf_argparse.py [-h] vcf_file {header,count,stats,filter} ...
+
+Анализ VCF-файлов с использованием подкоманд.
+
+positional arguments:
+  vcf_file              Путь к входному VCF-файлу
+
+options:
+  -h, --help            show this help message and exit
+
+Команды:
+  {header,count,stats,filter}
+                        Действие для выполнения
+    header              1. Показать заголовки (meta и группы INFO/FILTER/...)
+    count               2. Посчитать общее количество вариантов
+    stats               3. Показать статистику по регионам (хромосомам)
+    filter              4. Фильтровать варианты в заданном регионе
+```
+### *Подкоманда header*
+**Пример работы**
+```bash
+python biodatareader\run_vcf_<argparse/click>.py testfiles\example.vcf header
 ```
 **Пример вывода**
 ```text
@@ -224,11 +309,29 @@ python biodatareader/run_vcf_<argparse/click>.py HG00098.vcf
 
 ##contig — не найдены
 
+Анализ завершён.
+```
+### *Подкоманда count*
+**Пример работы**
+```bash
+python biodatareader\run_vcf_<argparse/click>.py testfiles\example.vcf count
+```
+**Пример вывода**
+```text
 ======================================================================
 3. КОЛИЧЕСТВО ВАРИАНТОВ
 ======================================================================
 Общее количество вариантов: 46,065
 
+Анализ завершён.
+```
+### *Подкоманда stats*
+**Пример работы**
+```bash
+python biodatareader\run_vcf_<argparse/click>.py testfiles\example.vcf stats
+```
+**Пример вывода**
+```text
 ======================================================================
 4. СТАТИСТИКА ПО РЕГИОНАМ (ХРОМОСОМАМ)
 ======================================================================
@@ -236,6 +339,37 @@ region  variant_count
     22          46065
 
 Всего регионов (хромосом) с вариантами: 1
+
+Анализ завершён.
+```
+### *Подкоманда filter*
+```text
+usage: run_vcf_argparse.py vcf_file filter [-h] chrom start end
+
+positional arguments:
+  chrom       Хромосома для фильтрации (например: '1', 'chr1')
+  start       Начало региона (1-based, включительно)
+  end         Конец региона (включительно)
+
+options:
+  -h, --help  show this help message and exit
+```
+**Пример работы**
+```bash
+python biodatareader\run_vcf_<argparse/click>.py testfiles\example.vcf filter 22 16050000 16100000
+```
+**Пример вывода**
+```text
+======================================================================
+5. ВАРИАНТЫ В РЕГИОНЕ: 22:16050000-16100000
+======================================================================
+Найдено вариантов: 18
+  1. 22:16051347 G>C
+  2. 22:16051497 A>G
+  3. 22:16053791 C>A
+  4. 22:16055942 C>T
+  5. 22:16056126 G>A
+  ... и ещё 13
 
 Анализ завершён.
 ```
